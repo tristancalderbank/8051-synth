@@ -1,0 +1,1030 @@
+0000              1   ; Blinky.asm: toggles an LED attached to pin 17 (P3.7)
+                 -1   $MODLP52
+0000              1   ;  MODLP52: Register definition for Atmel's AT89LP52
+0000              2   ;
+0000              3   ;   Copyright (C) 2011-2015  Jesus Calvino-Fraga, jesusc at ece.ubc.ca
+0000              4   ;
+0000              5   ;   This library is free software; you can redistribute it and/or
+0000              6   ;   modify it under the terms of the GNU Lesser General Public
+0000              7   ;   License as published by the Free Software Foundation; either
+0000              8   ;   version 2.1 of the License, or (at your option) any later version.
+0000              9   ;
+0000             10   ;   This library is distributed in the hope that it will be useful,
+0000             11   ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+0000             12   ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+0000             13   ;   Lesser General Public License for more details.
+0000             14   ;
+0000             15   ;   You should have received a copy of the GNU Lesser General Public
+0000             16   ;   License along with this library; if not, write to the Free Software
+0000             17   ;   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+0000             18   ;
+0000             19   ;--------------------------------------------------------
+0000             20   ; Special Function Registers
+0000             21   ;--------------------------------------------------------
+0000             22   P0             DATA 0x80
+0000             23   P1             DATA 0x90
+0000             24   P2             DATA 0xa0
+0000             25   P3             DATA 0xb0
+0000             26   P4             DATA 0xc0
+0000             27   PMOD           DATA 0xc1
+0000             28   PSW            DATA 0xd0
+0000             29   ACC            DATA 0xe0
+0000             30   B              DATA 0xf0
+0000             31   SP             DATA 0x81
+0000             32   DPL            DATA 0x82
+0000             33   DPH            DATA 0x83
+0000             34   DP0L           DATA 0x82
+0000             35   DP0H           DATA 0x83
+0000             36   DP1L           DATA 0x84
+0000             37   DP1H           DATA 0x85
+0000             38   AUXR           DATA 0x8e
+0000             39   AUXR1          DATA 0xa2
+0000             40   DPCF           DATA 0xa2
+0000             41   TCON           DATA 0x88
+0000             42   TMOD           DATA 0x89
+0000             43   T2CON          DATA 0xc8
+0000             44   T2MOD          DATA 0xc9
+0000             45   TL0            DATA 0x8a
+0000             46   TL1            DATA 0x8b
+0000             47   TL2            DATA 0xcc
+0000             48   TH0            DATA 0x8c
+0000             49   TH1            DATA 0x8d
+0000             50   TH2            DATA 0xcd
+0000             51   TCONB          DATA 0x91
+0000             52   RCAP2L         DATA 0xca
+0000             53   RCAP2H         DATA 0xcb
+0000             54   WDTRST         DATA 0xa6
+0000             55   WDTCON         DATA 0xa7
+0000             56   SCON           DATA 0x98
+0000             57   SBUF           DATA 0x99
+0000             58   SADEN          DATA 0xb9
+0000             59   SADDR          DATA 0xa9
+0000             60   IE             DATA 0xa8
+0000             61   IP             DATA 0xb8
+0000             62   IPH            DATA 0xb7
+0000             63   PCON           DATA 0x87
+0000             64   CLKREG         DATA 0x8f
+0000             65   MEMCON         DATA 0x96
+0000             66   ;--------------------------------------------------------
+0000             67   ; special function bits
+0000             68   ;--------------------------------------------------------
+0000             69   SCK            BIT 0x97
+0000             70   MISO           BIT 0x96
+0000             71   MOSI           BIT 0x95
+0000             72   T2EX           BIT 0x91
+0000             73   T2             BIT 0x90
+0000             74   RD             BIT 0xb7
+0000             75   WR             BIT 0xb6
+0000             76   T1             BIT 0xb5
+0000             77   T0             BIT 0xb4
+0000             78   INT1           BIT 0xb3
+0000             79   INT0           BIT 0xb2
+0000             80   TXD            BIT 0xb1
+0000             81   RXD            BIT 0xb0
+0000             82   XTAL2          BIT 0xc7
+0000             83   XTAL1          BIT 0xc6
+0000             84   PSEN           BIT 0xc5
+0000             85   ALE            BIT 0xc4
+0000             86   CY             BIT 0xd7
+0000             87   AC             BIT 0xd6
+0000             88   F0             BIT 0xd5
+0000             89   RS1            BIT 0xd4
+0000             90   RS0            BIT 0xd3
+0000             91   OV             BIT 0xd2
+0000             92   UD             BIT 0xd1
+0000             93   P              BIT 0xd0
+0000             94   TF1            BIT 0x8f
+0000             95   TR1            BIT 0x8e
+0000             96   TF0            BIT 0x8d
+0000             97   TR0            BIT 0x8c
+0000             98   IE1            BIT 0x8b
+0000             99   IT1            BIT 0x8a
+0000            100   IE0            BIT 0x89
+0000            101   IT0            BIT 0x88
+0000            102   TF2            BIT 0xcf
+0000            103   EXF2           BIT 0xce
+0000            104   RCLK           BIT 0xcd
+0000            105   TCLK           BIT 0xcc
+0000            106   EXEN2          BIT 0xcb
+0000            107   TR2            BIT 0xca
+0000            108   C_T2           BIT 0xc9
+0000            109   CP_RL2         BIT 0xc8
+0000            110   SM0            BIT 0x9f
+0000            111   FE             BIT 0x9f
+0000            112   SM1            BIT 0x9e
+0000            113   SM2            BIT 0x9d
+0000            114   REN            BIT 0x9c
+0000            115   TB8            BIT 0x9b
+0000            116   RB8            BIT 0x9a
+0000            117   TI             BIT 0x99
+0000            118   RI             BIT 0x98
+0000            119   EA             BIT 0xaf
+0000            120   ET2            BIT 0xad
+0000            121   ES             BIT 0xac
+0000            122   ET1            BIT 0xab
+0000            123   EX1            BIT 0xaa
+0000            124   ET0            BIT 0xa9
+0000            125   EX0            BIT 0xa8
+0000            126   PT2            BIT 0xbd
+0000            127   PS             BIT 0xbc
+0000            128   PT1            BIT 0xbb
+0000            129   PX1            BIT 0xba
+0000            130   PT0            BIT 0xb9
+0000            131   PX0            BIT 0xb8
+0000              3   org 0000H
+0000 0201B2       4    ljmp myprogram
+0003              5   ; When using a 22.1184MHz crystal in fast mode
+0003              6   ; one cycle takes 1.0/22.1184MHz = 45.21123 ns
+0003              7   WaitHalfSec:
+0003 7A28         8    mov R2, #40
+0005 79F0         9   L3: mov R1, #240
+0007 78F0        10   L2: mov R0, #240
+0009 D8FE        11   L1: djnz R0, L1 ; 3 cycles->3*45.21123ns*166=22.51519us
+000B D9FA        12    djnz R1, L2 ; 22.51519us*250=5.629ms
+000D DAF6        13    djnz R2, L3 ; 5.629ms*89=0.5s (approximately)
+000F 22          14    ret
+0010             15    
+0010             16    
+0010             17   ;PERIOD
+0010             18   ;-----------------------------------------------------------
+0010             19   
+0010             20   
+0010             21   ;1st Octave
+0010             22   ;----------------------------------------------------------
+0010             23   
+0010             24   D_1:
+0010 7A01        25    mov R2, #1
+0012 7996        26   DDD3: mov R1, #150
+0014 78A6        27   DDD2: mov R0, #166
+0016 D8FE        28   DDD1: djnz R0, DDD1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0018 D9FA        29    djnz R1, DDD2 ; 22.51519us*250=5.629ms
+001A DAF6        30    djnz R2, DDD3 ; 5.629ms*89=0.5s (approximately)
+001C 22          31    ret
+001D             32    
+001D             33   
+001D             34   E_1:
+001D 7A01        35    mov R2, #1
+001F 7985        36   EEE3: mov R1, #133
+0021 78A6        37   EEE2: mov R0, #166
+0023 D8FE        38   EEE1: djnz R0, EEE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0025 D9FA        39    djnz R1, EEE2 ; 22.51519us*250=5.629ms
+0027 DAF6        40    djnz R2, EEE3 ; 5.629ms*89=0.5s (approximately)
+0029 22          41    ret
+002A             42   
+002A             43   Fs_1:
+002A 7A01        44    mov R2, #1
+002C 79EE        45   FFFs3: mov R1, #238
+002E 7853        46   FFFs2: mov R0, #83
+0030 D8FE        47   FFFs1: djnz R0, FFFs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0032 D9FA        48    djnz R1, FFFs2 ; 22.51519us*250=5.629ms
+0034 DAF6        49    djnz R2, FFFs3 ; 5.629ms*89=0.5s (approximately)
+0036 22          50    ret 
+0037             51   
+0037             52   G_1:
+0037 7A01        53    mov R2, #1
+0039 79E0        54   GGG3: mov R1, #224
+003B 7853        55   GGG2: mov R0, #83
+003D D8FE        56   GGG1: djnz R0, GGG1 ; 3 cycles->3*45.21123ns*166=22.51519us
+003F D9FA        57    djnz R1, GGG2 ; 22.51519us*250=5.629ms
+0041 DAF6        58    djnz R2, GGG3 ; 5.629ms*89=0.5s (approximately)
+0043 22          59    ret
+0044             60    
+0044             61   
+0044             62   
+0044             63   ;2nd Octave
+0044             64   ;----------------------------------------------------------
+0044             65   A_2:
+0044 7A01        66    mov R2, #1
+0046 79C8        67   AA3: mov R1, #200
+0048 7853        68   AA2: mov R0, #83
+004A D8FE        69   AA1: djnz R0, AA1 ; 3 cycles->3*45.21123ns*166=22.51519us
+004C D9FA        70    djnz R1, AA2 ; 22.51519us*250=5.629ms
+004E DAF6        71    djnz R2, AA3 ; 5.629ms*89=0.5s (approximately)
+0050 22          72    ret 
+0051             73   
+0051             74   B_2:
+0051 7A01        75    mov R2, #1
+0053 79B2        76   BB3: mov R1, #178
+0055 7853        77   BB2: mov R0, #83
+0057 D8FE        78   BB1: djnz R0, BB1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0059 D9FA        79    djnz R1, BB2 ; 22.51519us*250=5.629ms
+005B DAF6        80    djnz R2, BB3 ; 5.629ms*89=0.5s (approximately)
+005D 22          81    ret
+005E             82   
+005E             83   Cs_2:
+005E 7A01        84    mov R2, #1
+0060 799F        85   CC3: mov R1, #159
+0062 7853        86   CC2: mov R0, #83
+0064 D8FE        87   CC1: djnz R0, CC1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0066 D9FA        88    djnz R1, CC2 ; 22.51519us*250=5.629ms
+0068 DAF6        89    djnz R2, CC3 ; 5.629ms*89=0.5s (approximately)
+006A 22          90    ret
+006B             91   
+006B             92   D_2:
+006B 7A01        93    mov R2, #1
+006D 7996        94   D3: mov R1, #150
+006F 7853        95   D2: mov R0, #83
+0071 D8FE        96   D1: djnz R0, D1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0073 D9FA        97    djnz R1, D2 ; 22.51519us*250=5.629ms
+0075 DAF6        98    djnz R2, D3 ; 5.629ms*89=0.5s (approximately)
+0077 22          99    ret
+0078            100    
+0078            101   E_2:
+0078 7A01       102    mov R2, #1
+007A 7985       103   EE3: mov R1, #133
+007C 7853       104   EE2: mov R0, #83
+007E D8FE       105   EE1: djnz R0, EE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0080 D9FA       106    djnz R1, EE2 ; 22.51519us*250=5.629ms
+0082 DAF6       107    djnz R2, EE3 ; 5.629ms*89=0.5s (approximately)
+0084 22         108    ret
+0085            109   
+0085            110   
+0085            111   Fs_2:
+0085 7A01       112    mov R2, #1
+0087 7977       113   Fs3: mov R1, #119
+0089 7853       114   Fs2: mov R0, #83
+008B D8FE       115   Fs1: djnz R0, Fs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+008D D9FA       116    djnz R1, Fs2 ; 22.51519us*250=5.629ms
+008F DAF6       117    djnz R2, Fs3 ; 5.629ms*89=0.5s (approximately)
+0091 22         118    ret 
+0092            119   
+0092            120   G_2:
+0092 7A01       121    mov R2, #1
+0094 7970       122   G3: mov R1, #112
+0096 7853       123   G2: mov R0, #83
+0098 D8FE       124   G1: djnz R0, G1 ; 3 cycles->3*45.21123ns*166=22.51519us
+009A D9FA       125    djnz R1, G2 ; 22.51519us*250=5.629ms
+009C DAF6       126    djnz R2, G3 ; 5.629ms*89=0.5s (approximately)
+009E 22         127    ret
+009F            128    
+009F            129    ;3rd Octave
+009F            130   ;----------------------------------------------------------
+009F            131   
+009F            132   A_3:
+009F 7A01       133    mov R2, #1
+00A1 7964       134   A3: mov R1, #100
+00A3 7853       135   A2: mov R0, #83
+00A5 D8FE       136   A1: djnz R0, A1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00A7 D9FA       137    djnz R1, A2 ; 22.51519us*250=5.629ms
+00A9 DAF6       138    djnz R2, A3 ; 5.629ms*89=0.5s (approximately)
+00AB 22         139    ret
+00AC            140   
+00AC            141   E_3:
+00AC 7A01       142    mov R2, #1
+00AE 7943       143   E3: mov R1, #67
+00B0 78A5       144   E2: mov R0, #165
+00B2 D8FE       145   E1: djnz R0, E1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00B4 D9FA       146    djnz R1, E2 ; 22.51519us*250=5.629ms
+00B6 DAF6       147    djnz R2, E3 ; 5.629ms*89=0.5s (approximately)
+00B8 22         148    ret
+00B9            149   
+00B9            150    
+00B9            151    
+00B9            152   ;PLAY
+00B9            153   ;--------------------------------------------------------
+00B9            154   
+00B9            155   ;1st octave
+00B9            156   ;---------------------------------------------------------
+00B9            157   
+00B9            158   PlayD_1:
+00B9 7D03       159    mov R5, #3
+00BB 7C01       160   PLAYDDD3: mov R4, #1
+00BD 7B06       161   PLAYDDD2: mov R3, #6
+00BF B2B7       162   PLAYDDD1: cpl P3.7
+00C1 120010     163               lcall D_1
+00C4 DBF9       164    djnz R3, PLAYDDD1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00C6 DCF5       165    djnz R4, PLAYDDD2 ; 22.51519us*250=5.629ms
+00C8 DDF1       166    djnz R5, PLAYDDD3 ; 5.629ms*89=0.5s (approximately)
+00CA 22         167    ret
+00CB            168    
+00CB            169   PlayE_1:
+00CB 7D03       170    mov R5, #3
+00CD 7C01       171   PLAYEEE3: mov R4, #1
+00CF 7B06       172   PLAYEEE2: mov R3, #6
+00D1 B2B7       173   PLAYEEE1: cpl P3.7
+00D3 12001D     174               lcall E_1
+00D6 DBF9       175    djnz R3, PLAYEEE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00D8 DCF5       176    djnz R4, PLAYEEE2 ; 22.51519us*250=5.629ms
+00DA DDF1       177    djnz R5, PLAYEEE3 ; 5.629ms*89=0.5s (approximately)
+00DC 22         178    ret
+00DD            179    
+00DD            180   PlayFs_1:
+00DD 7D03       181    mov R5, #3
+00DF 7C01       182   PLAYFFFs3: mov R4, #1
+00E1 7B06       183   PLAYFFFs2: mov R3, #6
+00E3 B2B7       184   PLAYFFFs1: cpl P3.7
+00E5 12002A     185               lcall Fs_1
+00E8 DBF9       186    djnz R3, PLAYFFFs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00EA DCF5       187    djnz R4, PLAYFFFs2 ; 22.51519us*250=5.629ms
+00EC DDF1       188    djnz R5, PLAYFFFs3 ; 5.629ms*89=0.5s (approximately)
+00EE 22         189    ret
+00EF            190    
+00EF            191   PlayG_1:
+00EF 7D03       192    mov R5, #3
+00F1 7C01       193   PLAYGGG3: mov R4, #1
+00F3 7B06       194   PLAYGGG2: mov R3, #6
+00F5 B2B7       195   PLAYGGG1: cpl P3.7
+00F7 120037     196               lcall G_1
+00FA DBF9       197    djnz R3, PLAYGGG1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00FC DCF5       198    djnz R4, PLAYGGG2 ; 22.51519us*250=5.629ms
+00FE DDF1       199    djnz R5, PLAYGGG3 ; 5.629ms*89=0.5s (approximately)
+0100 22         200    ret
+0101            201   
+0101            202   ;2nd octave
+0101            203   ;------------------------------------------------------
+0101            204   PlayA_2:
+0101 7D03       205    mov R5, #3
+0103 7C01       206   PLAYAA3: mov R4, #1
+0105 7B08       207   PLAYAA2: mov R3, #8
+0107 B2B7       208   PLAYAA1: cpl P3.7
+0109 120044     209               lcall A_2
+010C DBF9       210    djnz R3, PLAYAA1 ; 3 cycles->3*45.21123ns*166=22.51519us
+010E DCF5       211    djnz R4, PLAYAA2 ; 22.51519us*250=5.629ms
+0110 DDF1       212    djnz R5, PLAYAA3 ; 5.629ms*89=0.5s (approximately)
+0112 22         213    ret
+0113            214   
+0113            215   PlayB_2:
+0113 7D03       216    mov R5, #3
+0115 7C01       217   PLAYBB3: mov R4, #1
+0117 7B08       218   PLAYBB2: mov R3, #8
+0119 B2B7       219   PLAYBB1: cpl P3.7
+011B 120051     220               lcall B_2
+011E DBF9       221    djnz R3, PLAYBB1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0120 DCF5       222    djnz R4, PLAYBB2 ; 22.51519us*250=5.629ms
+0122 DDF1       223    djnz R5, PLAYBB3 ; 5.629ms*89=0.5s (approximately)
+0124 22         224    ret
+0125            225   
+0125            226   PlayCs_2:
+0125 7D03       227    mov R5, #3
+0127 7C01       228   PLAYCCs3: mov R4, #1
+0129 7B0A       229   PLAYCCs2: mov R3, #10
+012B B2B7       230   PLAYCCs1: cpl P3.7
+012D 12005E     231               lcall Cs_2
+0130 DBF9       232    djnz R3, PLAYCCs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0132 DCF5       233    djnz R4, PLAYCCs2 ; 22.51519us*250=5.629ms
+0134 DDF1       234    djnz R5, PLAYCCs3 ; 5.629ms*89=0.5s (approximately)
+0136 22         235    ret
+0137            236    
+0137            237   PlayD_2:
+0137 7D03       238    mov R5, #3
+0139 7C01       239   PLAYDD3: mov R4, #1
+013B 7B0A       240   PLAYDD2: mov R3, #10
+013D B2B7       241   PLAYDD1: cpl P3.7
+013F 12006B     242               lcall D_2
+0142 DBF9       243    djnz R3, PLAYDD1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0144 DCF5       244    djnz R4, PLAYDD2 ; 22.51519us*250=5.629ms
+0146 DDF1       245    djnz R5, PLAYDD3 ; 5.629ms*89=0.5s (approximately)
+0148 22         246    ret
+0149            247    
+0149            248   PlayE_2:
+0149 7D03       249    mov R5, #3
+014B 7C01       250   PLAYEE3: mov R4, #1
+014D 7B0A       251   PLAYEE2: mov R3, #10
+014F B2B7       252   PLAYEE1: cpl P3.7
+0151 120078     253               lcall E_2
+0154 DBF9       254    djnz R3, PLAYEE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0156 DCF5       255    djnz R4, PLAYEE2 ; 22.51519us*250=5.629ms
+0158 DDF1       256    djnz R5, PLAYEE3 ; 5.629ms*89=0.5s (approximately)
+015A 22         257    ret
+015B            258    
+015B            259   
+015B            260   PlayFs_2:
+015B 7D02       261    mov R5, #2
+015D 7C04       262   PLAYFFs3: mov R4, #4
+015F 7B0A       263   PLAYFFs2: mov R3, #10
+0161 B2B7       264   PLAYFFs1: cpl P3.7
+0163 120085     265               lcall Fs_2
+0166 DBF9       266    djnz R3, PLAYFFs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0168 DCF5       267    djnz R4, PLAYFFs2 ; 22.51519us*250=5.629ms
+016A DDF1       268    djnz R5, PLAYFFs3 ; 5.629ms*89=0.5s (approximately)
+016C 22         269    ret
+016D            270    
+016D            271   PlayG_2:
+016D 7D02       272    mov R5, #2
+016F 7C04       273   PLAYGG3: mov R4, #4
+0171 7B0A       274   PLAYGG2: mov R3, #10
+0173 B2B7       275   PLAYGG1: cpl P3.7
+0175 120092     276               lcall G_2
+0178 DBF9       277    djnz R3, PLAYGG1 ; 3 cycles->3*45.21123ns*166=22.51519us
+017A DCF5       278    djnz R4, PLAYGG2 ; 22.51519us*250=5.629ms
+017C DDF1       279    djnz R5, PLAYGG3 ; 5.629ms*89=0.5s (approximately)
+017E 22         280    ret
+017F            281    
+017F            282   ;3rd octave
+017F            283   ;----------------------------------------------------------
+017F            284   PlayA_3:
+017F 7D02       285    mov R5, #2
+0181 7C04       286   PLAYA3: mov R4, #4
+0183 7B0A       287   PLAYA2: mov R3, #10
+0185 B2B7       288   PLAYA1: cpl P3.7
+0187 12009F     289               lcall A_3
+018A DBF9       290    djnz R3, PLAYA1 ; 3 cycles->3*45.21123ns*166=22.51519us
+018C DCF5       291    djnz R4, PLAYA2 ; 22.51519us*250=5.629ms
+018E DDF1       292    djnz R5, PLAYA3 ; 5.629ms*89=0.5s (approximately)
+0190 22         293    ret
+0191            294   
+0191            295   PlayE_3:
+0191 7D03       296    mov R5, #3
+0193 7C01       297   PLAYE3: mov R4, #1
+0195 7B0A       298   PLAYE2: mov R3, #10
+0197 B2B7       299   PLAYE1: cpl P3.7
+0199 1200AC     300               lcall E_3
+019C DBF9       301    djnz R3, PLAYE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+019E DCF5       302    djnz R4, PLAYE2 ; 22.51519us*250=5.629ms
+01A0 DDF1       303    djnz R5, PLAYE3 ; 5.629ms*89=0.5s (approximately)
+01A2 22         304    ret
+01A3            305   
+01A3            306   
+01A3            307    ;-----------------------------------------------------------
+01A3            308   
+01A3            309   Gap:
+01A3 7D64       310    mov R5, #100
+01A5 7C14       311   GAP3: mov R4, #20
+01A7 7B64       312   GAP2: mov R3, #100
+01A9 B2B7       313   GAP1: cpl P3.7
+01AB DBFC       314    djnz R3, GAP1 ; 3 cycles->3*45.21123ns*166=22.51519us
+01AD DCF8       315    djnz R4, GAP2 ; 22.51519us*250=5.629ms
+01AF DDF4       316    djnz R5, GAP3 ; 5.629ms*89=0.5s (approximately)
+01B1 22         317    ret
+01B2            318    
+01B2            319   myprogram:
+01B2 75817F     320    mov SP, #7FH
+01B5 75C100     321    mov PMOD, #0 ; Configure all ports in bidirectional mode
+01B8            322   M0:
+01B8            323   
+01B8            324   ; --------------------------
+01B8            325   ;| Song:  Sandstorm         |
+01B8            326   ;| Artist: Darude           |
+01B8            327   ; --------------------------
+01B8            328   
+01B8 120266     329    lcall intro1
+01BB 120327     330    lcall intro2
+01BE 120327     331    lcall intro2
+01C1 120266     332    lcall intro1
+01C4 120327     333    lcall intro2
+01C7 120327     334    lcall intro2
+01CA            335    
+01CA 120388     336    lcall building1
+01CD 120449     337    lcall building2
+01D0            338    
+01D0 12050B     339    lcall building3
+01D3 12050B     340    lcall building3
+01D6 12050B     341    lcall building3
+01D9 12050B     342    lcall building3
+01DC            343    
+01DC 12053C     344    lcall pre_drop
+01DF 12053C     345    lcall pre_drop
+01E2 12053C     346    lcall pre_drop
+01E5 12053C     347    lcall pre_drop
+01E8 12053C     348    lcall pre_drop
+01EB 12053C     349    lcall pre_drop
+01EE 12053C     350    lcall pre_drop
+01F1            351    
+01F1 120555     352    lcall drop
+01F4            353    
+01F4 12056E     354    lcall main_riff
+01F7 120623     355    lcall main_riff2
+01FA 120623     356    lcall main_riff2
+01FD            357    
+01FD 12056E     358    lcall main_riff
+0200 120623     359    lcall main_riff2
+0203 120623     360    lcall main_riff2
+0206            361    
+0206 12056E     362    lcall main_riff
+0209 120623     363    lcall main_riff2
+020C 120623     364    lcall main_riff2
+020F            365   
+020F 12056E     366    lcall main_riff
+0212 120623     367    lcall main_riff2
+0215 120623     368    lcall main_riff2
+0218            369   
+0218 12067E     370    lcall alt_riff1
+021B 1206D9     371    lcall alt_riff2
+021E            372    
+021E 12056E     373    lcall main_riff
+0221            374    
+0221 1206D9     375    lcall alt_riff2
+0224 1206D9     376    lcall alt_riff2
+0227 1206D9     377    lcall alt_riff2
+022A 1206D9     378    lcall alt_riff2
+022D            379    
+022D 120737     380    lcall alt_riff3
+0230 120737     381    lcall alt_riff3
+0233 120737     382    lcall alt_riff3
+0236 120737     383    lcall alt_riff3
+0239            384    
+0239 120768     385    lcall alt_riff4
+023C 120768     386    lcall alt_riff4
+023F 120768     387    lcall alt_riff4
+0242 120768     388    lcall alt_riff4
+0245 120768     389    lcall alt_riff4
+0248 120768     390    lcall alt_riff4
+024B 120768     391    lcall alt_riff4
+024E 120768     392    lcall alt_riff4 
+0251            393    
+0251 12056E     394    lcall main_riff
+0254 120623     395    lcall main_riff2
+0257 120623     396    lcall main_riff2
+025A            397   
+025A 12056E     398    lcall main_riff
+025D 120623     399    lcall main_riff2
+0260 120623     400    lcall main_riff2
+0263            401   
+0263 0201B8     402    ljmp M0
+0266            403   
+0266            404   intro1:
+0266 120113     405    lcall PlayB_2
+0269 120113     406    lcall PlayB_2
+026C 120113     407    lcall PlayB_2
+026F 120113     408    lcall PlayB_2
+0272 1201A3     409    lcall Gap
+0275 1201A3     410    lcall Gap
+0278 120113     411    lcall PlayB_2
+027B 120113     412    lcall PlayB_2
+027E 120113     413    lcall PlayB_2
+0281 120113     414    lcall PlayB_2
+0284 1201A3     415    lcall Gap
+0287 1201A3     416    lcall Gap
+028A 120113     417    lcall PlayB_2
+028D 120113     418    lcall PlayB_2
+0290 1201A3     419    lcall Gap
+0293 1201A3     420    lcall Gap
+0296 120113     421    lcall PlayB_2
+0299 120113     422    lcall PlayB_2
+029C 120113     423    lcall PlayB_2
+029F 120113     424    lcall PlayB_2
+02A2 1201A3     425    lcall Gap
+02A5 1201A3     426    lcall Gap
+02A8 120113     427    lcall PlayB_2
+02AB 120113     428    lcall PlayB_2
+02AE 120113     429    lcall PlayB_2
+02B1 120113     430    lcall PlayB_2
+02B4 1201A3     431    lcall Gap
+02B7 1201A3     432    lcall Gap
+02BA            433   
+02BA 120149     434    lcall PlayE_2
+02BD 120149     435    lcall PlayE_2
+02C0 1201A3     436    lcall Gap
+02C3 1201A3     437    lcall Gap
+02C6 120149     438    lcall PlayE_2
+02C9 120149     439    lcall PlayE_2
+02CC 120149     440    lcall PlayE_2
+02CF 120149     441    lcall PlayE_2
+02D2 1201A3     442    lcall Gap
+02D5 1201A3     443    lcall Gap
+02D8 120149     444    lcall PlayE_2
+02DB 120149     445    lcall PlayE_2
+02DE 120149     446    lcall PlayE_2
+02E1 120149     447    lcall PlayE_2
+02E4 1201A3     448    lcall Gap
+02E7 1201A3     449    lcall Gap
+02EA            450   
+02EA 120137     451    lcall PlayD_2
+02ED 120137     452    lcall PlayD_2
+02F0 1201A3     453    lcall Gap
+02F3 1201A3     454    lcall Gap
+02F6 120137     455    lcall PlayD_2
+02F9 120137     456    lcall PlayD_2
+02FC 120137     457    lcall PlayD_2
+02FF 120137     458    lcall PlayD_2
+0302 1201A3     459    lcall Gap
+0305 1201A3     460    lcall Gap
+0308 120137     461    lcall PlayD_2
+030B 120137     462    lcall PlayD_2
+030E 120137     463    lcall PlayD_2
+0311 120137     464    lcall PlayD_2
+0314 1201A3     465    lcall Gap
+0317 1201A3     466    lcall Gap
+031A            467   
+031A 120101     468    lcall PlayA_2
+031D 120101     469    lcall PlayA_2
+0320 1201A3     470    lcall Gap
+0323 1201A3     471    lcall Gap
+0326 22         472    ret
+0327            473   
+0327            474   intro2:
+0327 120113     475    lcall PlayB_2
+032A 120113     476    lcall PlayB_2
+032D 120113     477    lcall PlayB_2
+0330 120113     478    lcall PlayB_2
+0333 1201A3     479    lcall Gap
+0336 1201A3     480    lcall Gap
+0339 120113     481    lcall PlayB_2
+033C 120113     482    lcall PlayB_2
+033F 120113     483    lcall PlayB_2
+0342 120113     484    lcall PlayB_2
+0345 1201A3     485    lcall Gap
+0348 1201A3     486    lcall Gap
+034B 120113     487    lcall PlayB_2
+034E 120113     488    lcall PlayB_2
+0351 1201A3     489    lcall Gap
+0354 1201A3     490    lcall Gap
+0357 120113     491    lcall PlayB_2
+035A 120113     492    lcall PlayB_2
+035D 120113     493    lcall PlayB_2
+0360 120113     494    lcall PlayB_2
+0363 1201A3     495    lcall Gap
+0366 1201A3     496    lcall Gap
+0369 120113     497    lcall PlayB_2
+036C 120113     498    lcall PlayB_2
+036F 120113     499    lcall PlayB_2
+0372 120113     500    lcall PlayB_2
+0375 1201A3     501    lcall Gap
+0378 1201A3     502    lcall Gap
+037B            503   
+037B 120149     504    lcall PlayE_2
+037E 120149     505    lcall PlayE_2
+0381 1201A3     506    lcall Gap
+0384 1201A3     507    lcall Gap
+0387 22         508    ret
+0388            509    
+0388            510   building1:
+0388 120113     511    lcall PlayB_2
+038B 1201A3     512    lcall Gap
+038E 120113     513    lcall PlayB_2
+0391 1201A3     514    lcall Gap
+0394 120113     515    lcall PlayB_2
+0397 1201A3     516    lcall Gap
+039A 120113     517    lcall PlayB_2
+039D 1201A3     518    lcall Gap
+03A0 120113     519    lcall PlayB_2
+03A3 120113     520    lcall PlayB_2
+03A6 1201A3     521    lcall Gap
+03A9 1201A3     522    lcall Gap
+03AC 120113     523    lcall PlayB_2
+03AF 120113     524    lcall PlayB_2
+03B2 1201A3     525    lcall Gap
+03B5 1201A3     526    lcall Gap
+03B8 120113     527    lcall PlayB_2
+03BB 120113     528    lcall PlayB_2
+03BE 120113     529    lcall PlayB_2
+03C1 120113     530    lcall PlayB_2
+03C4 1201A3     531    lcall Gap
+03C7 1201A3     532    lcall Gap
+03CA 120113     533    lcall PlayB_2
+03CD 120113     534    lcall PlayB_2
+03D0 120113     535    lcall PlayB_2
+03D3 120113     536    lcall PlayB_2
+03D6 1201A3     537    lcall Gap
+03D9 1201A3     538    lcall Gap
+03DC            539   
+03DC 120149     540    lcall PlayE_2
+03DF 120149     541    lcall PlayE_2
+03E2 1201A3     542    lcall Gap
+03E5 1201A3     543    lcall Gap
+03E8 120149     544    lcall PlayE_2
+03EB 120149     545    lcall PlayE_2
+03EE 120149     546    lcall PlayE_2
+03F1 120149     547    lcall PlayE_2
+03F4 1201A3     548    lcall Gap
+03F7 1201A3     549    lcall Gap
+03FA 120149     550    lcall PlayE_2
+03FD 120149     551    lcall PlayE_2
+0400 120149     552    lcall PlayE_2
+0403 120149     553    lcall PlayE_2
+0406 1201A3     554    lcall Gap
+0409 1201A3     555    lcall Gap
+040C            556   
+040C 120137     557    lcall PlayD_2
+040F 120137     558    lcall PlayD_2
+0412 1201A3     559    lcall Gap
+0415 1201A3     560    lcall Gap
+0418 120137     561    lcall PlayD_2
+041B 120137     562    lcall PlayD_2
+041E 120137     563    lcall PlayD_2
+0421 120137     564    lcall PlayD_2
+0424 1201A3     565    lcall Gap
+0427 1201A3     566    lcall Gap
+042A 120137     567    lcall PlayD_2
+042D 120137     568    lcall PlayD_2
+0430 120101     569    lcall PlayA_2
+0433 120101     570    lcall PlayA_2
+0436 120101     571    lcall PlayA_2
+0439 120101     572    lcall PlayA_2
+043C            573   
+043C 120101     574    lcall PlayA_2
+043F 120101     575    lcall PlayA_2
+0442 120101     576    lcall PlayA_2
+0445 120101     577    lcall PlayA_2
+0448 22         578    ret
+0449            579   
+0449            580   
+0449            581   building2:
+0449 120113     582    lcall PlayB_2
+044C 1201A3     583    lcall Gap
+044F 120113     584    lcall PlayB_2
+0452 1201A3     585    lcall Gap
+0455 120113     586    lcall PlayB_2
+0458 1201A3     587    lcall Gap
+045B 120113     588    lcall PlayB_2
+045E 1201A3     589    lcall Gap
+0461 120113     590    lcall PlayB_2
+0464 120113     591    lcall PlayB_2
+0467 1201A3     592    lcall Gap
+046A 1201A3     593    lcall Gap
+046D 120113     594    lcall PlayB_2
+0470 120113     595    lcall PlayB_2
+0473 1201A3     596    lcall Gap
+0476 1201A3     597    lcall Gap
+0479 120113     598    lcall PlayB_2
+047C 120113     599    lcall PlayB_2
+047F 120113     600    lcall PlayB_2
+0482 120113     601    lcall PlayB_2
+0485 1201A3     602    lcall Gap
+0488 1201A3     603    lcall Gap
+048B 120113     604    lcall PlayB_2
+048E 120113     605    lcall PlayB_2
+0491 120113     606    lcall PlayB_2
+0494 120113     607    lcall PlayB_2
+0497 1201A3     608    lcall Gap
+049A 1201A3     609    lcall Gap
+049D            610   
+049D 120149     611    lcall PlayE_2
+04A0 120149     612    lcall PlayE_2
+04A3 1201A3     613    lcall Gap
+04A6 1201A3     614    lcall Gap
+04A9            615    
+04A9 120113     616    lcall PlayB_2
+04AC 120113     617    lcall PlayB_2
+04AF 120113     618    lcall PlayB_2
+04B2 120113     619    lcall PlayB_2
+04B5 1201A3     620    lcall Gap
+04B8 1201A3     621    lcall Gap
+04BB 120113     622    lcall PlayB_2
+04BE 120113     623    lcall PlayB_2
+04C1 120113     624    lcall PlayB_2
+04C4 120113     625    lcall PlayB_2
+04C7 1201A3     626    lcall Gap
+04CA 1201A3     627    lcall Gap
+04CD 120113     628    lcall PlayB_2
+04D0 120113     629    lcall PlayB_2
+04D3 1201A3     630    lcall Gap
+04D6 1201A3     631    lcall Gap
+04D9 120113     632    lcall PlayB_2
+04DC 120113     633    lcall PlayB_2
+04DF 120113     634    lcall PlayB_2
+04E2 120113     635    lcall PlayB_2
+04E5 1201A3     636    lcall Gap
+04E8 1201A3     637    lcall Gap
+04EB 120113     638    lcall PlayB_2
+04EE 120113     639    lcall PlayB_2
+04F1 120113     640    lcall PlayB_2
+04F4 120113     641    lcall PlayB_2
+04F7 1201A3     642    lcall Gap
+04FA 1201A3     643    lcall Gap
+04FD            644   
+04FD 120149     645    lcall PlayE_2
+0500 120149     646    lcall PlayE_2
+0503 1201A3     647    lcall Gap
+0506 1201A3     648    lcall Gap
+0509 22         649    ret
+050A 22         650    ret
+050B            651   
+050B            652   building3:
+050B 120113     653    lcall PlayB_2
+050E 1201A3     654    lcall Gap
+0511 120113     655    lcall PlayB_2
+0514 1201A3     656    lcall Gap
+0517 120113     657    lcall PlayB_2
+051A 1201A3     658    lcall Gap
+051D 120113     659    lcall PlayB_2
+0520 1201A3     660    lcall Gap
+0523 120113     661    lcall PlayB_2
+0526 120113     662    lcall PlayB_2
+0529 120113     663    lcall PlayB_2
+052C 120113     664    lcall PlayB_2
+052F 1201A3     665    lcall Gap
+0532 1201A3     666    lcall Gap
+0535 1201A3     667    lcall Gap
+0538 1201A3     668    lcall Gap
+053B 22         669    ret
+053C            670    
+053C            671   pre_drop:
+053C 120113     672    lcall PlayB_2
+053F 1201A3     673    lcall Gap
+0542 120113     674    lcall PlayB_2
+0545 1201A3     675    lcall Gap
+0548 120113     676    lcall PlayB_2
+054B 1201A3     677    lcall Gap
+054E 120113     678    lcall PlayB_2
+0551 1201A3     679    lcall Gap
+0554 22         680    ret
+0555            681    
+0555            682   drop:
+0555 120113     683    lcall PlayB_2
+0558 120101     684    lcall PlayA_2
+055B 1200EF     685    lcall PlayG_1
+055E 1200DD     686    lcall PlayFs_1
+0561 1200CB     687    lcall PlayE_1
+0564 1200B9     688    lcall PlayD_1
+0567 1201A3     689    lcall Gap
+056A 1201A3     690    lcall Gap
+056D 22         691    ret
+056E            692   
+056E            693   main_riff:
+056E 120113     694    lcall PlayB_2
+0571 1201A3     695    lcall Gap
+0574 120113     696    lcall PlayB_2
+0577 1201A3     697    lcall Gap
+057A 120113     698    lcall PlayB_2
+057D 1201A3     699    lcall Gap
+0580 120113     700    lcall PlayB_2
+0583 1201A3     701    lcall Gap
+0586 120113     702    lcall PlayB_2
+0589 120113     703    lcall PlayB_2
+058C 1201A3     704    lcall Gap
+058F 120113     705    lcall PlayB_2
+0592 1201A3     706    lcall Gap
+0595 120113     707    lcall PlayB_2
+0598 1201A3     708    lcall Gap
+059B 120113     709    lcall PlayB_2
+059E 1201A3     710    lcall Gap
+05A1 120113     711    lcall PlayB_2
+05A4 1201A3     712    lcall Gap
+05A7 120113     713    lcall PlayB_2
+05AA 1201A3     714    lcall Gap
+05AD 120113     715    lcall PlayB_2
+05B0 1201A3     716    lcall Gap
+05B3 120113     717    lcall PlayB_2
+05B6 120113     718    lcall PlayB_2
+05B9 1201A3     719    lcall Gap
+05BC            720   
+05BC 120149     721    lcall PlayE_2
+05BF 1201A3     722    lcall Gap
+05C2 120149     723    lcall PlayE_2
+05C5 1201A3     724    lcall Gap
+05C8 120149     725    lcall PlayE_2
+05CB 1201A3     726    lcall Gap
+05CE 120149     727    lcall PlayE_2
+05D1 1201A3     728    lcall Gap
+05D4 120149     729    lcall PlayE_2
+05D7 1201A3     730    lcall Gap
+05DA 120149     731    lcall PlayE_2
+05DD 1201A3     732    lcall Gap
+05E0 120149     733    lcall PlayE_2
+05E3 120149     734    lcall PlayE_2
+05E6 1201A3     735    lcall Gap
+05E9            736    
+05E9 120137     737    lcall PlayD_2
+05EC 1201A3     738    lcall Gap
+05EF 120137     739    lcall PlayD_2
+05F2 1201A3     740    lcall Gap
+05F5 120137     741    lcall PlayD_2
+05F8 1201A3     742    lcall Gap
+05FB 120137     743    lcall PlayD_2
+05FE 1201A3     744    lcall Gap
+0601 120137     745    lcall PlayD_2
+0604 1201A3     746    lcall Gap
+0607 120137     747    lcall PlayD_2
+060A 1201A3     748    lcall Gap
+060D 120137     749    lcall PlayD_2
+0610 120137     750    lcall PlayD_2
+0613 1201A3     751    lcall Gap
+0616            752    
+0616 120101     753    lcall PlayA_2
+0619 1201A3     754    lcall Gap
+061C 120101     755    lcall PlayA_2
+061F 1201A3     756    lcall Gap
+0622 22         757    ret
+0623            758    
+0623            759   main_riff2:
+0623 120113     760    lcall PlayB_2
+0626 1201A3     761    lcall Gap
+0629 120113     762    lcall PlayB_2
+062C 1201A3     763    lcall Gap
+062F 120113     764    lcall PlayB_2
+0632 1201A3     765    lcall Gap
+0635 120113     766    lcall PlayB_2
+0638 1201A3     767    lcall Gap
+063B 120113     768    lcall PlayB_2
+063E 120113     769    lcall PlayB_2
+0641 1201A3     770    lcall Gap
+0644 120113     771    lcall PlayB_2
+0647 1201A3     772    lcall Gap
+064A 120113     773    lcall PlayB_2
+064D 1201A3     774    lcall Gap
+0650 120113     775    lcall PlayB_2
+0653 1201A3     776    lcall Gap
+0656 120113     777    lcall PlayB_2
+0659 1201A3     778    lcall Gap
+065C 120113     779    lcall PlayB_2
+065F 1201A3     780    lcall Gap
+0662 120113     781    lcall PlayB_2
+0665 1201A3     782    lcall Gap
+0668 120113     783    lcall PlayB_2
+066B 120113     784    lcall PlayB_2
+066E 1201A3     785    lcall Gap
+0671            786   
+0671 120149     787    lcall PlayE_2
+0674 120149     788    lcall PlayE_2
+0677 120149     789    lcall PlayE_2
+067A 1201A3     790    lcall Gap
+067D 22         791    ret
+067E            792    
+067E            793   alt_riff1:
+067E 120113     794    lcall PlayB_2
+0681 1201A3     795    lcall Gap
+0684 120113     796    lcall PlayB_2
+0687 1201A3     797    lcall Gap
+068A 120113     798    lcall PlayB_2
+068D 1201A3     799    lcall Gap
+0690 120113     800    lcall PlayB_2
+0693 1201A3     801    lcall Gap
+0696 120113     802    lcall PlayB_2
+0699 120113     803    lcall PlayB_2
+069C 1201A3     804    lcall Gap
+069F 120113     805    lcall PlayB_2
+06A2 1201A3     806    lcall Gap
+06A5 120113     807    lcall PlayB_2
+06A8 1201A3     808    lcall Gap
+06AB 120113     809    lcall PlayB_2
+06AE 1201A3     810    lcall Gap
+06B1 120113     811    lcall PlayB_2
+06B4 1201A3     812    lcall Gap
+06B7 120113     813    lcall PlayB_2
+06BA 1201A3     814    lcall Gap
+06BD 120113     815    lcall PlayB_2
+06C0 1201A3     816    lcall Gap
+06C3 120113     817    lcall PlayB_2
+06C6 120113     818    lcall PlayB_2
+06C9 1201A3     819    lcall Gap
+06CC            820   
+06CC 120137     821    lcall PlayD_2
+06CF 120137     822    lcall PlayD_2
+06D2 1201A3     823    lcall Gap
+06D5 1201A3     824    lcall Gap
+06D8 22         825    ret
+06D9            826    
+06D9            827    alt_riff2:
+06D9 120113     828    lcall PlayB_2
+06DC 1201A3     829    lcall Gap
+06DF 120113     830    lcall PlayB_2
+06E2 1201A3     831    lcall Gap
+06E5 120113     832    lcall PlayB_2
+06E8 1201A3     833    lcall Gap
+06EB 120113     834    lcall PlayB_2
+06EE 1201A3     835    lcall Gap
+06F1 120113     836    lcall PlayB_2
+06F4 120113     837    lcall PlayB_2
+06F7 1201A3     838    lcall Gap
+06FA 120113     839    lcall PlayB_2
+06FD 1201A3     840    lcall Gap
+0700 120113     841    lcall PlayB_2
+0703 1201A3     842    lcall Gap
+0706 120113     843    lcall PlayB_2
+0709 1201A3     844    lcall Gap
+070C 120113     845    lcall PlayB_2
+070F 1201A3     846    lcall Gap
+0712 120113     847    lcall PlayB_2
+0715 1201A3     848    lcall Gap
+0718 120113     849    lcall PlayB_2
+071B 1201A3     850    lcall Gap
+071E 120137     851    lcall PlayD_2
+0721 120137     852    lcall PlayD_2
+0724 120137     853    lcall PlayD_2
+0727 1201A3     854    lcall Gap
+072A 120137     855    lcall PlayD_2
+072D 120137     856    lcall PlayD_2
+0730 120137     857    lcall PlayD_2
+0733 1201A3     858    lcall Gap
+0736 22         859    ret
+0737            860   
+0737            861   alt_riff3:
+0737 120113     862    lcall PlayB_2
+073A 1201A3     863    lcall Gap
+073D 120113     864    lcall PlayB_2
+0740 1201A3     865    lcall Gap
+0743 120113     866    lcall PlayB_2
+0746 1201A3     867    lcall Gap
+0749 120113     868    lcall PlayB_2
+074C 1201A3     869    lcall Gap
+074F 120137     870    lcall PlayD_2
+0752 120137     871    lcall PlayD_2
+0755 120137     872    lcall PlayD_2
+0758 1201A3     873    lcall Gap
+075B 120137     874    lcall PlayD_2
+075E 120137     875    lcall PlayD_2
+0761 120137     876    lcall PlayD_2
+0764 1201A3     877    lcall Gap
+0767 22         878    ret
+0768            879    
+0768            880   alt_riff4:
+0768 120113     881    lcall PlayB_2
+076B 1201A3     882    lcall Gap
+076E 120113     883    lcall PlayB_2
+0771 1201A3     884    lcall Gap
+0774 120137     885    lcall PlayD_2
+0777 120137     886    lcall PlayD_2
+077A 120137     887    lcall PlayD_2
+077D 1201A3     888    lcall Gap
+0780 22         889    ret
+0781            890   ; --------------------------
+0781            891   ;| End                      |
+0781            892   ;|                          |
+0781            893   ; --------------------------
+0781            894   
+0781            895    
+0781            896    
+0781            897   
+0781            898   
+0781            899   END

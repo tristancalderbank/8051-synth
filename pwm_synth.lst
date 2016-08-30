@@ -1,0 +1,533 @@
+0000              1   ; Blinky.asm: toggles an LED attached to pin 17 (P3.7)
+                 -1   $MODLP52
+0000              1   ;  MODLP52: Register definition for Atmel's AT89LP52
+0000              2   ;
+0000              3   ;   Copyright (C) 2011-2015  Jesus Calvino-Fraga, jesusc at ece.ubc.ca
+0000              4   ;
+0000              5   ;   This library is free software; you can redistribute it and/or
+0000              6   ;   modify it under the terms of the GNU Lesser General Public
+0000              7   ;   License as published by the Free Software Foundation; either
+0000              8   ;   version 2.1 of the License, or (at your option) any later version.
+0000              9   ;
+0000             10   ;   This library is distributed in the hope that it will be useful,
+0000             11   ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+0000             12   ;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+0000             13   ;   Lesser General Public License for more details.
+0000             14   ;
+0000             15   ;   You should have received a copy of the GNU Lesser General Public
+0000             16   ;   License along with this library; if not, write to the Free Software
+0000             17   ;   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+0000             18   ;
+0000             19   ;--------------------------------------------------------
+0000             20   ; Special Function Registers
+0000             21   ;--------------------------------------------------------
+0000             22   P0             DATA 0x80
+0000             23   P1             DATA 0x90
+0000             24   P2             DATA 0xa0
+0000             25   P3             DATA 0xb0
+0000             26   P4             DATA 0xc0
+0000             27   PMOD           DATA 0xc1
+0000             28   PSW            DATA 0xd0
+0000             29   ACC            DATA 0xe0
+0000             30   B              DATA 0xf0
+0000             31   SP             DATA 0x81
+0000             32   DPL            DATA 0x82
+0000             33   DPH            DATA 0x83
+0000             34   DP0L           DATA 0x82
+0000             35   DP0H           DATA 0x83
+0000             36   DP1L           DATA 0x84
+0000             37   DP1H           DATA 0x85
+0000             38   AUXR           DATA 0x8e
+0000             39   AUXR1          DATA 0xa2
+0000             40   DPCF           DATA 0xa2
+0000             41   TCON           DATA 0x88
+0000             42   TMOD           DATA 0x89
+0000             43   T2CON          DATA 0xc8
+0000             44   T2MOD          DATA 0xc9
+0000             45   TL0            DATA 0x8a
+0000             46   TL1            DATA 0x8b
+0000             47   TL2            DATA 0xcc
+0000             48   TH0            DATA 0x8c
+0000             49   TH1            DATA 0x8d
+0000             50   TH2            DATA 0xcd
+0000             51   TCONB          DATA 0x91
+0000             52   RCAP2L         DATA 0xca
+0000             53   RCAP2H         DATA 0xcb
+0000             54   WDTRST         DATA 0xa6
+0000             55   WDTCON         DATA 0xa7
+0000             56   SCON           DATA 0x98
+0000             57   SBUF           DATA 0x99
+0000             58   SADEN          DATA 0xb9
+0000             59   SADDR          DATA 0xa9
+0000             60   IE             DATA 0xa8
+0000             61   IP             DATA 0xb8
+0000             62   IPH            DATA 0xb7
+0000             63   PCON           DATA 0x87
+0000             64   CLKREG         DATA 0x8f
+0000             65   MEMCON         DATA 0x96
+0000             66   ;--------------------------------------------------------
+0000             67   ; special function bits
+0000             68   ;--------------------------------------------------------
+0000             69   SCK            BIT 0x97
+0000             70   MISO           BIT 0x96
+0000             71   MOSI           BIT 0x95
+0000             72   T2EX           BIT 0x91
+0000             73   T2             BIT 0x90
+0000             74   RD             BIT 0xb7
+0000             75   WR             BIT 0xb6
+0000             76   T1             BIT 0xb5
+0000             77   T0             BIT 0xb4
+0000             78   INT1           BIT 0xb3
+0000             79   INT0           BIT 0xb2
+0000             80   TXD            BIT 0xb1
+0000             81   RXD            BIT 0xb0
+0000             82   XTAL2          BIT 0xc7
+0000             83   XTAL1          BIT 0xc6
+0000             84   PSEN           BIT 0xc5
+0000             85   ALE            BIT 0xc4
+0000             86   CY             BIT 0xd7
+0000             87   AC             BIT 0xd6
+0000             88   F0             BIT 0xd5
+0000             89   RS1            BIT 0xd4
+0000             90   RS0            BIT 0xd3
+0000             91   OV             BIT 0xd2
+0000             92   UD             BIT 0xd1
+0000             93   P              BIT 0xd0
+0000             94   TF1            BIT 0x8f
+0000             95   TR1            BIT 0x8e
+0000             96   TF0            BIT 0x8d
+0000             97   TR0            BIT 0x8c
+0000             98   IE1            BIT 0x8b
+0000             99   IT1            BIT 0x8a
+0000            100   IE0            BIT 0x89
+0000            101   IT0            BIT 0x88
+0000            102   TF2            BIT 0xcf
+0000            103   EXF2           BIT 0xce
+0000            104   RCLK           BIT 0xcd
+0000            105   TCLK           BIT 0xcc
+0000            106   EXEN2          BIT 0xcb
+0000            107   TR2            BIT 0xca
+0000            108   C_T2           BIT 0xc9
+0000            109   CP_RL2         BIT 0xc8
+0000            110   SM0            BIT 0x9f
+0000            111   FE             BIT 0x9f
+0000            112   SM1            BIT 0x9e
+0000            113   SM2            BIT 0x9d
+0000            114   REN            BIT 0x9c
+0000            115   TB8            BIT 0x9b
+0000            116   RB8            BIT 0x9a
+0000            117   TI             BIT 0x99
+0000            118   RI             BIT 0x98
+0000            119   EA             BIT 0xaf
+0000            120   ET2            BIT 0xad
+0000            121   ES             BIT 0xac
+0000            122   ET1            BIT 0xab
+0000            123   EX1            BIT 0xaa
+0000            124   ET0            BIT 0xa9
+0000            125   EX0            BIT 0xa8
+0000            126   PT2            BIT 0xbd
+0000            127   PS             BIT 0xbc
+0000            128   PT1            BIT 0xbb
+0000            129   PX1            BIT 0xba
+0000            130   PT0            BIT 0xb9
+0000            131   PX0            BIT 0xb8
+0000              3   org 0000H
+0000 0201A3       4    ljmp myprogram
+0003              5   ; When using a 22.1184MHz crystal in fast mode
+0003              6   ; one cycle takes 1.0/22.1184MHz = 45.21123 ns
+0003              7   WaitHalfSec:
+0003 7A28         8    mov R2, #40
+0005 79F0         9   L3: mov R1, #240
+0007 78F0        10   L2: mov R0, #240
+0009 D8FE        11   L1: djnz R0, L1 ; 3 cycles->3*45.21123ns*166=22.51519us
+000B D9FA        12    djnz R1, L2 ; 22.51519us*250=5.629ms
+000D DAF6        13    djnz R2, L3 ; 5.629ms*89=0.5s (approximately)
+000F 22          14    ret
+0010             15    
+0010             16    
+0010             17   ;PERIOD
+0010             18   ;-----------------------------------------------------------
+0010             19   
+0010             20   
+0010             21   ;1st Octave
+0010             22   ;----------------------------------------------------------
+0010             23   
+0010             24   D_1:
+0010 7A02        25    mov R2, #2
+0012 7996        26   DDD3: mov R1, #150
+0014 78A6        27   DDD2: mov R0, #166
+0016 D8FE        28   DDD1: djnz R0, DDD1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0018 D9FA        29    djnz R1, DDD2 ; 22.51519us*250=5.629ms
+001A DAF6        30    djnz R2, DDD3 ; 5.629ms*89=0.5s (approximately)
+001C 22          31    ret
+001D             32    
+001D             33   
+001D             34   E_1:
+001D 7A02        35    mov R2, #2
+001F 7985        36   EEE3: mov R1, #133
+0021 78A6        37   EEE2: mov R0, #166
+0023 D8FE        38   EEE1: djnz R0, EEE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0025 D9FA        39    djnz R1, EEE2 ; 22.51519us*250=5.629ms
+0027 DAF6        40    djnz R2, EEE3 ; 5.629ms*89=0.5s (approximately)
+0029 22          41    ret
+002A             42   
+002A             43   Fs_1:
+002A 7A01        44    mov R2, #1
+002C 79EE        45   FFFs3: mov R1, #238
+002E 78A6        46   FFFs2: mov R0, #166
+0030 D8FE        47   FFFs1: djnz R0, FFFs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0032 D9FA        48    djnz R1, FFFs2 ; 22.51519us*250=5.629ms
+0034 DAF6        49    djnz R2, FFFs3 ; 5.629ms*89=0.5s (approximately)
+0036 22          50    ret 
+0037             51   
+0037             52   G_1:
+0037 7A01        53    mov R2, #1
+0039 79E0        54   GGG3: mov R1, #224
+003B 78A6        55   GGG2: mov R0, #166
+003D D8FE        56   GGG1: djnz R0, GGG1 ; 3 cycles->3*45.21123ns*166=22.51519us
+003F D9FA        57    djnz R1, GGG2 ; 22.51519us*250=5.629ms
+0041 DAF6        58    djnz R2, GGG3 ; 5.629ms*89=0.5s (approximately)
+0043 22          59    ret
+0044             60    
+0044             61   
+0044             62   
+0044             63   ;2nd Octave
+0044             64   ;----------------------------------------------------------
+0044             65   A_2:
+0044 7A01        66    mov R2, #1
+0046 79C8        67   AA3: mov R1, #200
+0048 78A6        68   AA2: mov R0, #166
+004A D8FE        69   AA1: djnz R0, AA1 ; 3 cycles->3*45.21123ns*166=22.51519us
+004C D9FA        70    djnz R1, AA2 ; 22.51519us*250=5.629ms
+004E DAF6        71    djnz R2, AA3 ; 5.629ms*89=0.5s (approximately)
+0050 22          72    ret 
+0051             73   
+0051             74   B_2:
+0051 7A01        75    mov R2, #1
+0053 79B2        76   BB3: mov R1, #178
+0055 78A6        77   BB2: mov R0, #166
+0057 D8FE        78   BB1: djnz R0, BB1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0059 D9FA        79    djnz R1, BB2 ; 22.51519us*250=5.629ms
+005B DAF6        80    djnz R2, BB3 ; 5.629ms*89=0.5s (approximately)
+005D 22          81    ret
+005E             82   
+005E             83   Cs_2:
+005E 7A01        84    mov R2, #1
+0060 799F        85   CC3: mov R1, #159
+0062 78A6        86   CC2: mov R0, #166
+0064 D8FE        87   CC1: djnz R0, CC1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0066 D9FA        88    djnz R1, CC2 ; 22.51519us*250=5.629ms
+0068 DAF6        89    djnz R2, CC3 ; 5.629ms*89=0.5s (approximately)
+006A 22          90    ret
+006B             91   
+006B             92   D_2:
+006B 7A01        93    mov R2, #1
+006D 7996        94   D3: mov R1, #150
+006F 78A6        95   D2: mov R0, #166
+0071 D8FE        96   D1: djnz R0, D1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0073 D9FA        97    djnz R1, D2 ; 22.51519us*250=5.629ms
+0075 DAF6        98    djnz R2, D3 ; 5.629ms*89=0.5s (approximately)
+0077 22          99    ret
+0078            100    
+0078            101   E_2:
+0078 7A01       102    mov R2, #1
+007A 7985       103   EE3: mov R1, #133
+007C 78A6       104   EE2: mov R0, #166
+007E D8FE       105   EE1: djnz R0, EE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0080 D9FA       106    djnz R1, EE2 ; 22.51519us*250=5.629ms
+0082 DAF6       107    djnz R2, EE3 ; 5.629ms*89=0.5s (approximately)
+0084 22         108    ret
+0085            109   
+0085            110   
+0085            111   Fs_2:
+0085 7A01       112    mov R2, #1
+0087 7977       113   Fs3: mov R1, #119
+0089 78A6       114   Fs2: mov R0, #166
+008B D8FE       115   Fs1: djnz R0, Fs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+008D D9FA       116    djnz R1, Fs2 ; 22.51519us*250=5.629ms
+008F DAF6       117    djnz R2, Fs3 ; 5.629ms*89=0.5s (approximately)
+0091 22         118    ret 
+0092            119   
+0092            120   G_2:
+0092 7A01       121    mov R2, #1
+0094 7970       122   G3: mov R1, #112
+0096 78A6       123   G2: mov R0, #166
+0098 D8FE       124   G1: djnz R0, G1 ; 3 cycles->3*45.21123ns*166=22.51519us
+009A D9FA       125    djnz R1, G2 ; 22.51519us*250=5.629ms
+009C DAF6       126    djnz R2, G3 ; 5.629ms*89=0.5s (approximately)
+009E 22         127    ret
+009F            128    
+009F            129    ;3rd Octave
+009F            130   ;----------------------------------------------------------
+009F            131   
+009F            132   A_3:
+009F 7A01       133    mov R2, #1
+00A1 7964       134   A3: mov R1, #100
+00A3 78A6       135   A2: mov R0, #166
+00A5 D8FE       136   A1: djnz R0, A1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00A7 D9FA       137    djnz R1, A2 ; 22.51519us*250=5.629ms
+00A9 DAF6       138    djnz R2, A3 ; 5.629ms*89=0.5s (approximately)
+00AB 22         139    ret
+00AC            140   
+00AC            141   E_3:
+00AC 7A01       142    mov R2, #1
+00AE 7943       143   E3: mov R1, #67
+00B0 78A5       144   E2: mov R0, #165
+00B2 D8FE       145   E1: djnz R0, E1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00B4 D9FA       146    djnz R1, E2 ; 22.51519us*250=5.629ms
+00B6 DAF6       147    djnz R2, E3 ; 5.629ms*89=0.5s (approximately)
+00B8 22         148    ret
+00B9            149   
+00B9            150    
+00B9            151    
+00B9            152   ;PLAY
+00B9            153   ;--------------------------------------------------------
+00B9            154   
+00B9            155   ;1st octave
+00B9            156   ;---------------------------------------------------------
+00B9            157   
+00B9            158   PlayD_1:
+00B9 7D03       159    mov R5, #3
+00BB 7C02       160   PLAYDDD3: mov R4, #2
+00BD 7B06       161   PLAYDDD2: mov R3, #6
+00BF B2B7       162   PLAYDDD1: cpl P3.7
+00C1 120010     163               lcall D_1
+00C4 DBF9       164    djnz R3, PLAYDDD1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00C6 DCF5       165    djnz R4, PLAYDDD2 ; 22.51519us*250=5.629ms
+00C8 DDF1       166    djnz R5, PLAYDDD3 ; 5.629ms*89=0.5s (approximately)
+00CA 22         167    ret
+00CB            168    
+00CB            169   PlayE_1:
+00CB 7D03       170    mov R5, #3
+00CD 7C02       171   PLAYEEE3: mov R4, #2
+00CF 7B06       172   PLAYEEE2: mov R3, #6
+00D1 B2B7       173   PLAYEEE1: cpl P3.7
+00D3 12001D     174               lcall E_1
+00D6 DBF9       175    djnz R3, PLAYEEE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00D8 DCF5       176    djnz R4, PLAYEEE2 ; 22.51519us*250=5.629ms
+00DA DDF1       177    djnz R5, PLAYEEE3 ; 5.629ms*89=0.5s (approximately)
+00DC 22         178    ret
+00DD            179    
+00DD            180   PlayFs_1:
+00DD 7D03       181    mov R5, #3
+00DF 7C02       182   PLAYFFFs3: mov R4, #2
+00E1 7B06       183   PLAYFFFs2: mov R3, #6
+00E3 B2B7       184   PLAYFFFs1: cpl P3.7
+00E5 12002A     185               lcall Fs_1
+00E8 DBF9       186    djnz R3, PLAYFFFs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00EA DCF5       187    djnz R4, PLAYFFFs2 ; 22.51519us*250=5.629ms
+00EC DDF1       188    djnz R5, PLAYFFFs3 ; 5.629ms*89=0.5s (approximately)
+00EE 22         189    ret
+00EF            190    
+00EF            191   PlayG_1:
+00EF 7D03       192    mov R5, #3
+00F1 7C02       193   PLAYGGG3: mov R4, #2
+00F3 7B06       194   PLAYGGG2: mov R3, #6
+00F5 B2B7       195   PLAYGGG1: cpl P3.7
+00F7 120037     196               lcall G_1
+00FA DBF9       197    djnz R3, PLAYGGG1 ; 3 cycles->3*45.21123ns*166=22.51519us
+00FC DCF5       198    djnz R4, PLAYGGG2 ; 22.51519us*250=5.629ms
+00FE DDF1       199    djnz R5, PLAYGGG3 ; 5.629ms*89=0.5s (approximately)
+0100 22         200    ret
+0101            201   
+0101            202   ;2nd octave
+0101            203   ;------------------------------------------------------
+0101            204   PlayA_2:
+0101 7D03       205    mov R5, #3
+0103 7C02       206   PLAYAA3: mov R4, #2
+0105 7B08       207   PLAYAA2: mov R3, #8
+0107 B2B7       208   PLAYAA1: cpl P3.7
+0109 120044     209               lcall A_2
+010C DBF9       210    djnz R3, PLAYAA1 ; 3 cycles->3*45.21123ns*166=22.51519us
+010E DCF5       211    djnz R4, PLAYAA2 ; 22.51519us*250=5.629ms
+0110 DDF1       212    djnz R5, PLAYAA3 ; 5.629ms*89=0.5s (approximately)
+0112 22         213    ret
+0113            214   
+0113            215   PlayB_2:
+0113 7D03       216    mov R5, #3
+0115 7C02       217   PLAYBB3: mov R4, #2
+0117 7B08       218   PLAYBB2: mov R3, #8
+0119 B2B7       219   PLAYBB1: cpl P3.7
+011B 120051     220               lcall B_2
+011E DBF9       221    djnz R3, PLAYBB1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0120 DCF5       222    djnz R4, PLAYBB2 ; 22.51519us*250=5.629ms
+0122 DDF1       223    djnz R5, PLAYBB3 ; 5.629ms*89=0.5s (approximately)
+0124 22         224    ret
+0125            225   
+0125            226   PlayCs_2:
+0125 7D03       227    mov R5, #3
+0127 7C02       228   PLAYCCs3: mov R4, #2
+0129 7B0A       229   PLAYCCs2: mov R3, #10
+012B B2B7       230   PLAYCCs1: cpl P3.7
+012D 12005E     231               lcall Cs_2
+0130 DBF9       232    djnz R3, PLAYCCs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0132 DCF5       233    djnz R4, PLAYCCs2 ; 22.51519us*250=5.629ms
+0134 DDF1       234    djnz R5, PLAYCCs3 ; 5.629ms*89=0.5s (approximately)
+0136 22         235    ret
+0137            236    
+0137            237   PlayD_2:
+0137 7D03       238    mov R5, #3
+0139 7C02       239   PLAYDD3: mov R4, #2
+013B 7B0A       240   PLAYDD2: mov R3, #10
+013D B2B7       241   PLAYDD1: cpl P3.7
+013F 12006B     242               lcall D_2
+0142 DBF9       243    djnz R3, PLAYDD1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0144 DCF5       244    djnz R4, PLAYDD2 ; 22.51519us*250=5.629ms
+0146 DDF1       245    djnz R5, PLAYDD3 ; 5.629ms*89=0.5s (approximately)
+0148 22         246    ret
+0149            247    
+0149            248   PlayE_2:
+0149 7D03       249    mov R5, #3
+014B 7C02       250   PLAYEE3: mov R4, #2
+014D 7B0A       251   PLAYEE2: mov R3, #10
+014F B2B7       252   PLAYEE1: cpl P3.7
+0151 120078     253               lcall E_2
+0154 DBF9       254    djnz R3, PLAYEE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0156 DCF5       255    djnz R4, PLAYEE2 ; 22.51519us*250=5.629ms
+0158 DDF1       256    djnz R5, PLAYEE3 ; 5.629ms*89=0.5s (approximately)
+015A 22         257    ret
+015B            258    
+015B            259   
+015B            260   PlayFs_2:
+015B 7D02       261    mov R5, #2
+015D 7C04       262   PLAYFFs3: mov R4, #4
+015F 7B0A       263   PLAYFFs2: mov R3, #10
+0161 B2B7       264   PLAYFFs1: cpl P3.7
+0163 120085     265               lcall Fs_2
+0166 DBF9       266    djnz R3, PLAYFFs1 ; 3 cycles->3*45.21123ns*166=22.51519us
+0168 DCF5       267    djnz R4, PLAYFFs2 ; 22.51519us*250=5.629ms
+016A DDF1       268    djnz R5, PLAYFFs3 ; 5.629ms*89=0.5s (approximately)
+016C 22         269    ret
+016D            270    
+016D            271   PlayG_2:
+016D 7D02       272    mov R5, #2
+016F 7C04       273   PLAYGG3: mov R4, #4
+0171 7B0A       274   PLAYGG2: mov R3, #10
+0173 B2B7       275   PLAYGG1: cpl P3.7
+0175 120092     276               lcall G_2
+0178 DBF9       277    djnz R3, PLAYGG1 ; 3 cycles->3*45.21123ns*166=22.51519us
+017A DCF5       278    djnz R4, PLAYGG2 ; 22.51519us*250=5.629ms
+017C DDF1       279    djnz R5, PLAYGG3 ; 5.629ms*89=0.5s (approximately)
+017E 22         280    ret
+017F            281    
+017F            282   ;3rd octave
+017F            283   ;----------------------------------------------------------
+017F            284   PlayA_3:
+017F 7D02       285    mov R5, #2
+0181 7C04       286   PLAYA3: mov R4, #4
+0183 7B0A       287   PLAYA2: mov R3, #10
+0185 B2B7       288   PLAYA1: cpl P3.7
+0187 12009F     289               lcall A_3
+018A DBF9       290    djnz R3, PLAYA1 ; 3 cycles->3*45.21123ns*166=22.51519us
+018C DCF5       291    djnz R4, PLAYA2 ; 22.51519us*250=5.629ms
+018E DDF1       292    djnz R5, PLAYA3 ; 5.629ms*89=0.5s (approximately)
+0190 22         293    ret
+0191            294   
+0191            295   PlayE_3:
+0191 7D03       296    mov R5, #3
+0193 7C02       297   PLAYE3: mov R4, #2
+0195 7B0A       298   PLAYE2: mov R3, #10
+0197 B2B7       299   PLAYE1: cpl P3.7
+0199 1200AC     300               lcall E_3
+019C DBF9       301    djnz R3, PLAYE1 ; 3 cycles->3*45.21123ns*166=22.51519us
+019E DCF5       302    djnz R4, PLAYE2 ; 22.51519us*250=5.629ms
+01A0 DDF1       303    djnz R5, PLAYE3 ; 5.629ms*89=0.5s (approximately)
+01A2 22         304    ret
+01A3            305   
+01A3            306   
+01A3            307    ;-----------------------------------------------------------
+01A3            308   myprogram:
+01A3 75817F     309    mov SP, #7FH
+01A6 75C100     310    mov PMOD, #0 ; Configure all ports in bidirectional mode
+01A9            311   M0:
+01A9            312    ;cpl P3.7
+01A9            313    ;lcall PlayA_2
+01A9            314    ;lcall PlayB_2
+01A9            315    ;lcall PlayCs_2
+01A9            316    ;lcall PlayD_2
+01A9            317    ;lcall PlayE_2
+01A9            318    ;lcall PlayFs_2
+01A9            319    ;lcall PlayG_2
+01A9            320    
+01A9            321    ;lcall PlayA_3
+01A9            322    ;lcall PlayE_3
+01A9            323   
+01A9            324   
+01A9 12017F     325    lcall PlayA_3
+01AC 12017F     326    lcall PlayA_3
+01AF 12015B     327    lcall PlayFs_2
+01B2 12016D     328    lcall PlayG_2
+01B5 12017F     329    lcall PlayA_3
+01B8 12017F     330    lcall PlayA_3
+01BB 12015B     331    lcall PlayFs_2
+01BE 12016D     332    lcall PlayG_2
+01C1 12017F     333    lcall PlayA_3
+01C4            334    
+01C4 120101     335    lcall PlayA_2
+01C7 120113     336    lcall PlayB_2
+01CA 120125     337    lcall PlayCs_2
+01CD 120137     338    lcall PlayD_2
+01D0 120149     339    lcall PlayE_2
+01D3 12015B     340    lcall PlayFs_2
+01D6 12016D     341    lcall PlayG_2
+01D9            342    
+01D9 12015B     343    lcall PlayFs_2
+01DC 12015B     344    lcall PlayFs_2
+01DF 120137     345    lcall PlayD_2
+01E2 120149     346    lcall PlayE_2
+01E5 12015B     347    lcall PlayFs_2
+01E8 12015B     348    lcall PlayFs_2
+01EB            349   
+01EB 1200DD     350    lcall PlayFs_1
+01EE 1200EF     351    lcall PlayG_1
+01F1 120101     352    lcall PlayA_2
+01F4 120113     353    lcall PlayB_2
+01F7 120101     354    lcall PlayA_2
+01FA 1200EF     355    lcall PlayG_1
+01FD 120101     356    lcall PlayA_2
+0200 1200DD     357    lcall PlayFs_1
+0203 1200EF     358    lcall PlayG_1
+0206 120101     359    lcall PlayA_2
+0209 1200EF     360    lcall PlayG_1
+020C 1200EF     361    lcall PlayG_1 ;3:19
+020F            362    
+020F 120113     363    lcall PlayB_2
+0212 120101     364    lcall PlayA_2
+0215 1200EF     365    lcall PlayG_1
+0218 1200EF     366    lcall PlayG_1
+021B            367    
+021B 1200DD     368    lcall PlayFs_1
+021E 1200CB     369    lcall PlayE_1
+0221            370    
+0221 1200DD     371    lcall PlayFs_1
+0224 1200CB     372    lcall PlayE_1
+0227 1200B9     373    lcall PlayD_1
+022A 1200CB     374    lcall PlayE_1
+022D 1200DD     375    lcall PlayFs_1
+0230 1200EF     376    lcall PlayG_1
+0233 120101     377    lcall PlayA_2
+0236 120113     378    lcall PlayB_2
+0239 1200EF     379    lcall PlayG_1
+023C 1200EF     380    lcall PlayG_1
+023F            381    
+023F 120113     382    lcall PlayB_2
+0242 120101     383    lcall PlayA_2
+0245 120113     384    lcall PlayB_2
+0248 120113     385    lcall PlayB_2
+024B            386    
+024B 120125     387    lcall PlayCs_2
+024E 120137     388    lcall PlayD_2
+0251            389    
+0251 120101     390    lcall PlayA_2
+0254 120113     391    lcall PlayB_2
+0257 120125     392    lcall PlayCs_2
+025A 120137     393    lcall PlayD_2
+025D 120149     394    lcall PlayE_2
+0260 12015B     395    lcall PlayFs_2
+0263 12016D     396    lcall PlayG_2
+0266 12017F     397    lcall PlayA_3
+0269            398   
+0269            399    
+0269            400   
+0269 0201A9     401    ljmp M0
+026C            402   END
